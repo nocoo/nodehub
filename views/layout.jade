@@ -1,0 +1,25 @@
+
+doctype 5
+html
+	head
+		title #{title} - NodeHub
+		block css
+			link(rel='stylesheet', href='/assets/css/nodehub.css')
+			link(rel='shortcut icon', href='/assets/images/favicon.ico')
+
+		block script
+			script(src='/assets/js/jquery.min.js') 
+	body
+		block header
+			div.header
+				a.forkme(href='http://github.com/nocoo/nodehub')
+					img(src='/assets/images/forkme.png')
+			
+		block content
+
+		block footer
+			div.footer
+				p.version NodeHub 0.1.0
+				p.license MIT License
+
+		block logic

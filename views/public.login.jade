@@ -1,0 +1,27 @@
+extends layout
+
+block content
+	div.b-login
+		h1 NodeHub
+		form
+			label Name
+				input#input_name.span3(type='text', placeholder='Username', value='admin')
+			label Password
+				input#input_pass.span3(type='password', placeholder='Password', value='admin')
+			a.btn.btn-info(href='#') Login
+			div.clear
+
+block prepend css
+	link(rel='stylesheet', href='/assets/css/bootstrap.min.css')
+
+block append script
+	script(src='/assets/js/jquery.sha256.min.js')
+
+block append logic
+	script
+		;(function($) {
+			// Logic code for this page.
+			$('.b-login form .btn').on('click', function() {
+				console.log('hello evetn');
+			});
+		})(jQuery);

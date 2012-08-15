@@ -1,0 +1,39 @@
+/*
+	nodehub
+	@author  Zheng Li <lizheng@lizheng.me>
+	@license MIT
+	@version 0.1.0
+*/
+
+/* Global */
+/* Theme: #CC6600 #FF9933 */
+
+body { font: 12px "Lucida Grande", Helvetica, Arial, sans-serif; }
+a { color: #CC6600; }
+
+.clear { width: 0; height: 0; clear: both; }
+
+/* Parts */
+.header a.forkme { position: absolute; right: 0; top: 0; }
+
+.footer { width: 100%; height: 24px; background: rgba(0, 0, 0, 0.05); position: absolute; bottom: 0; }
+.footer p { line-height: 24px; color: #AAA; font-size: 0.9em; padding: 0 10px; float: left; }
+.footer p.license { float: right; }
+
+/* Components */
+div.b-login { width: 300px; height: 440px; border: 1px solid #CCC; box-shadow: 5px 5px 10px #EFEFEF; position: absolute; top: 50%; left: 50%; margin-top: -220px; margin-left: -150px; }
+div.b-login h1 { line-height: 300px; background: #ff9933; text-align: center; font-size: 3em; color: #FFF; }
+div.b-login form { padding: 20px 10px 10px 10px; }
+div.b-login form label { text-align: right; margin: 0 20px 0 10px; color: #777; }
+div.b-login form label input { width: 160px; margin-left: 10px; }
+div.b-login form a.btn { width: 50px; float: right; margin-right: 20px; }
+
+/* Override BootStrap */
+.btn { border-radius: 0px; }
+
+textarea, input[type="text"], input[type="password"], input[type="datetime"], 
+input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], 
+input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], 
+input[type="tel"], input[type="color"], .uneditable-input { 
+	border-radius: 0px; -webkit-border-radius: 0px; 
+}
