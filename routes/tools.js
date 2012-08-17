@@ -7,8 +7,10 @@
 
 var mongodb = require('mongodb');
 
+exports.BASE_URL = '/tm';
 exports.SESSION_MAX_AGE = 600000;
 exports.PER_PAGE_COUNT = 20;
+
 exports.MONGODB_SERVER = new mongodb.Server('localhost', 27017, { 'auto_reconnect': true, 'poolSize': 20 });
 exports.DB = new mongodb.Db('nodehub', exports.MONGODB_SERVER);
 
