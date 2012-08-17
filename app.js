@@ -40,6 +40,8 @@ app.get('/logout', routes.logout);
 /* Admin */
 app.get('/admin', routes.admin.dashboard);
 app.get('/admin/dashboard/:token', routes.admin.dashboard);
+app.get('/admin/services/:token', routes.admin.services);
+
 app.get('/admin/logs/:token', routes.admin.logs);
 
 /* APIs */

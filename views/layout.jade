@@ -13,7 +13,7 @@ html
 	body
 		block header
 			div.header
-			
+
 		block content
 
 		block footer
@@ -22,4 +22,9 @@ html
 				p.license
 					a(href='http://github.com/nocoo/nodehub') GitHub
 
+		block mask
+			div.b-mask
+				div.b-window
+					block mask-window
+						p Hello Window
 		block logic

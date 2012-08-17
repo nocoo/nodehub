@@ -35,6 +35,20 @@ exports.admin.dashboard = function(req, res) {
 	}
 };
 
+exports.admin.services = function(req, res) {
+	if(tools.check(req)) {
+		res.render(
+			'admin.services.jade', 
+			{
+				'title': 'Services', 
+				'admin': req.session.admin
+			}
+		);
+	} else {
+		res.redirect('/login');
+	}
+};
+
 exports.admin.logs = function(req, res) {
 	if(tools.check(req)) {
 		res.render(

@@ -1,0 +1,44 @@
+extends admin.layout
+
+block admin-left
+	div.well.b-sidemenu
+		include admin.sidemenu.jade
+
+block admin-right
+	div.b-right-content.p-admin-services
+		h1 Services
+			a.btn.btn-info#a_new(href='#/admin/services/add/#{admin.token}') New Service
+
+		table.table.table-bordered#table_services
+			thead
+				tr
+					//th #Log ID
+					th Time
+					th Message
+					th Extra
+			tbody
+
+block mask-window
+	div.p-admin-services-window
+		div.actions
+			a.btn.btn-info#a_window_add(href='#') Add
+			a.btn#a_window_cancel(href='#') Canel
+			div.clear
+
+block append logic
+	script
+		;(function($) {
+			$(document).ready(function() {
+				$('.b-sidemenu li.item-services').addClass('active');
+				$.NODEHUB.window(400, 300);
+
+				$('#a_new').on('click', function() {
+					$.NODEHUB.window_show();
+					return false;
+				});
+
+				$('#a_window_cancel').on('click', function() {
+					$.NODEHUB.window_hide();
+				});
+			});
+		})(jQuery);
