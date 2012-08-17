@@ -1,0 +1,84 @@
+extends admin.layout
+
+block admin-left
+	div.well.b-sidemenu
+		include admin.sidemenu.jade
+
+block admin-right
+	div.b-right-content
+		h1 Management Logs
+		ul.pager
+			li.previous.disabled
+				a(href='#') &larr; Newer
+			li.next
+				a(href='#') Older &rarr;
+		table.table.table-bordered
+			thead
+				tr
+					th #Log ID
+					th Time
+					th Message
+					th Extra
+			tbody
+		ul.pager
+			li.previous.disabled
+				a(href='#') &larr; Newer
+			li.next
+				a(href='#') Older &rarr;
+
+block append logic
+	script
+		;(function($) {
+			$(document).ready(function() {
+				$('.b-sidemenu li.item-logs').addClass('active');
+
+				var start_ids = [], last_id = undefined;
+				var request = function(is_pre) {
+					$.post('/api/log-list', { 'last_id': last_id }, function(data) {
+						console.log(last_id);
+
+						var html = [], i, record;
+						for(i = 0; i < data.extra['docs'].length; ++i) {
+							record = data.extra['docs'][i];
+
+							html.push('<tr>');
+							html.push('<td>' + record['_id'] + '</td>');
+							html.push('<td>' + record['time_string'] + '</td>');
+							html.push('<td>' + record['message'] + '</td>');
+							html.push('<td>' + JSON.stringify(record['extra']) + '</td>');
+							html.push('</tr>');
+						}
+
+						if(!is_pre) {
+							start_ids.push({ 'start': data.extra['docs'][0]['_id'], 'end': record['_id'] });
+						}
+
+						console.log(start_ids);
+
+						$('.b-right-content table tbody').html(html.join(''));
+					});
+				};
+
+				request();
+
+				$('.pager li.previous').on('click', function() {
+					if($('.pager li.previous').hasClass('disabled')) return false;
+
+					start_ids.pop();
+
+					if(start_ids.length === 1) {
+						$('.pager li.previous').addClass('disabled');
+					}
+
+					last_id = start_ids[start_ids.length - 1]['start'];
+					request(true);
+				});
+
+				$('.pager li.next').on('click', function() {
+					$('.pager li.previous').removeClass('disabled');
+
+					last_id = $.NODEHUB.mongodb_objectid_add(start_ids[start_ids.length - 1]['end'], -1);
+					request();
+				});
+			});
+		})(jQuery);

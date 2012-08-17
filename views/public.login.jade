@@ -8,7 +8,7 @@ block content
 				input#input_name.span3(type='text', placeholder='Username', value='admin')
 			label Password
 				input#input_pass.span3(type='password', placeholder='Password', value='admin')
-			a.btn.btn-info(href='#') Login
+			button.btn.btn-info(type='submit') Login
 			div.clear
 
 block prepend css
@@ -21,7 +21,24 @@ block append logic
 	script
 		;(function($) {
 			// Logic code for this page.
-			$('.b-login form .btn').on('click', function() {
-				console.log('hello evetn');
+			var do_login = function() {
+				$.post('/api/login', 
+					{ 
+						'd_username': $('#input_name').attr('value'),
+						'd_password': $.sha256($('#input_pass').attr('value'))
+					}, 
+					function(data) {
+						if(!data || data['code'] !== 200) {
+							$('.b-login form').get(0).reset();
+						} else {
+							window.location = '/admin/dashboard/' + data['extra']['token'];
+						}
+					}
+				);
+			};
+
+			$('.b-login form').on('submit', function() { 
+				do_login();
+				return false;
 			});
 		})(jQuery);

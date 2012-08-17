@@ -1,0 +1,14 @@
+extends admin.layout
+
+block admin-left
+	div.well.b-sidemenu
+		include admin.sidemenu.jade
+
+block admin-right
+	p This is content.ss
+
+block append logic
+	script
+		;(function($) {
+			$('.b-sidemenu li.item-dashboard').addClass('active');
+		})(jQuery);

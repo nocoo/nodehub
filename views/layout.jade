@@ -9,17 +9,17 @@ html
 
 		block script
 			script(src='/assets/js/jquery.min.js') 
+			script(src='/assets/js/nodehub.js')
 	body
 		block header
 			div.header
-				a.forkme(href='http://github.com/nocoo/nodehub')
-					img(src='/assets/images/forkme.png')
 			
 		block content
 
 		block footer
 			div.footer
-				p.version NodeHub 0.1.0
-				p.license MIT License
+				p.version NodeHub 0.1.0, MIT License
+				p.license
+					a(href='http://github.com/nocoo/nodehub') GitHub
 
 		block logic

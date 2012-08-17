@@ -1,0 +1,27 @@
+extends layout
+
+block prepend css
+	link(rel='stylesheet', href='/assets/css/bootstrap.min.css')
+
+block header
+	section.row-fluid.admin-header
+		div.span12
+			h1 NodeHub
+			p.info 
+				span Welcome, #{admin.username} 
+				span.sep | 
+				span
+					a(href='/logout') Logout
+
+block content
+	section.row-fluid.admin-content
+		div.span2
+			block admin-left
+				p Left
+		div.span10
+			div.alert.alert-info.b-right-alert
+				button.close(type='button') ×
+				strong Initializing 
+				span Please wait.
+			block admin-right
+				p Right
