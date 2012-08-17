@@ -34,7 +34,7 @@ block append logic
 
 				var start_ids = [], last_id = undefined;
 				var request = function(is_pre) {
-					$.post('/api/log-list', { 'last_id': last_id }, function(data) {
+					$.post('./api/log-list', { 'last_id': last_id }, function(data) {
 						console.log(last_id);
 
 						var html = [], i, record;

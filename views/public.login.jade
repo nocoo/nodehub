@@ -12,17 +12,17 @@ block content
 			div.clear
 
 block prepend css
-	link(rel='stylesheet', href='/assets/css/bootstrap.min.css')
+	link(rel='stylesheet', href='./assets/css/bootstrap.min.css')
 
 block append script
-	script(src='/assets/js/jquery.sha256.min.js')
+	script(src='./assets/js/jquery.sha256.min.js')
 
 block append logic
 	script
 		;(function($) {
 			// Logic code for this page.
 			var do_login = function() {
-				$.post('/api/login', 
+				$.post('./api/login', 
 					{ 
 						'd_username': $('#input_name').attr('value'),
 						'd_password': $.sha256($('#input_pass').attr('value'))
@@ -31,7 +31,7 @@ block append logic
 						if(!data || data['code'] !== 200) {
 							$('.b-login form').get(0).reset();
 						} else {
-							window.location = '/admin/dashboard/' + data['extra']['token'];
+							window.location = './admin/dashboard/' + data['extra']['token'];
 						}
 					}
 				);
