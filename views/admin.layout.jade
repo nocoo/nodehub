@@ -21,7 +21,16 @@ block content
 		div.span10
 			div.alert.alert-info.b-right-alert
 				button.close(type='button') ×
-				strong Initializing 
-				span Please wait.
+				div.inline
+					strong Initializing 
+					span Please wait.
+				div.block
+					p
+						strong Initializing 
+					p
+						span Please wait.
+				p.action
+					a.btn.action-confrim(href='#') OK
+					a.btn.action-cancel(href='#') Cancel
 			block admin-right
 				p Right

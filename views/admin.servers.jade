@@ -1,0 +1,158 @@
+extends admin.layout
+
+block admin-left
+	div.well.b-sidemenu
+		include admin.sidemenu.jade
+
+block admin-right
+	div.b-right-content.p-admin-services
+		h1 Servers
+			a.btn.btn-primary#a_new(href='#/admin/services/add/#{admin.token}') New Server
+			a.btn.btn#a_test_all(href='#') Test All
+
+		table.table.table-bordered#table_services
+			thead
+				tr
+					th Label
+					th Name
+					th Address
+					th Port
+					th Status
+					th Version
+					th Operation
+			tbody
+
+block mask-window
+	div.p-admin-servers-window
+		div.content
+			form.form-horizontal#form_new_server
+				fieldset
+					legend Add New Hub Server
+					div.control-group
+						label.control-label Name
+						div.controls
+							input.span2#input_name(type='text')
+							p.help-inline
+					div.control-group
+						label.control-label Address
+						div.controls
+							input.span2#input_address(type='text')
+							p.help-inline Hostname or IP address.
+					div.control-group
+						label.control-label TCP Port
+						div.controls
+							input.span1#input_port(type='text', value='17755')
+							p.help-inline Port of NodeHub app.
+		div.actions
+			a.btn.btn-info#a_window_add(href='#') Add
+			a.btn#a_window_cancel(href='#') Canel
+			div.clear
+
+block append logic
+	script
+		;(function($) {
+			$(document).ready(function() {
+				$('.b-sidemenu li.item-servers').addClass('active');
+				$.NODEHUB.window(400, 220);
+
+				$('#a_new').on('click', function() {
+					$.NODEHUB.window_show();
+					$('#form_new_server').get(0).reset();
+					return false;
+				});
+
+				$('#a_window_cancel').on('click', function() {
+					$.NODEHUB.window_hide();
+				});
+
+				$('#a_window_add').on('click', function() {
+					$.post(
+						'/api/server-add',
+						{
+							'd_name': $('#input_name').attr('value') || 'N/A',
+							'd_address': $('#input_address').attr('value') || 'N/A',
+							'd_port': $('#input_port').attr('value') || '17755'
+						},
+						function(data) {
+							$.NODEHUB.window_hide();
+							refresh();
+
+							if(data['code'] === 200) {
+								$.NODEHUB.alert('Server added', 'Success', 'success');
+							} else {
+								$.NODEHUB.alert(data['message'], 'Error', 'error');
+							}
+						}
+					);
+				});
+
+				$('#a_test_all').on('click', function() { test_all(); });
+
+				var servers;
+				var refresh = function() {
+					// Get server list.
+					$.post('/api/server-list', {  },
+						function(data) {
+							//console.log(data);
+
+							if(data['code'] !== 200) {
+								$.NODEHUB.alert(data['message'], 'Server Error', 'error');
+							} else {
+								if(!data['extra'] || !data['extra'].length) return;
+
+								servers = data['extra'];
+								var html = [], record;
+								for(var i = 0; i < data['extra'].length; ++i) {
+									record = data['extra'][i];
+
+									html.push('<tr id="row_' + record['_id'] + '">');
+									html.push('<td><span class="label label-info">' + record['label'] + '</span></td>');
+									html.push('<td>' + record['name'] + '</td>');
+									html.push('<td>' + record['address'] + '</td>');
+									html.push('<td>' + record['port'] + '</td>');
+
+									html.push('<td>Testing</td>');
+									html.push('<td>Testing</td>');
+									html.push('<td><a href="#" class="a-delete" rel="' + record['_id'] + '">Delete</a> | <a href="#" class="a-test" rel="' + record['_id'] + '">Test</a></td>');
+
+									html.push('</tr>');
+								}
+
+								$('#table_services tbody').html(html.join(''));
+
+								// Events.
+								$('.a-delete').off('click');
+								$('.a-delete').on('click', on_delete);
+							}
+						}
+					);
+				};
+
+				var test_server = function() {
+
+				};
+
+				var test_all = function() {
+					if(!servers) return;
+
+				};
+
+				var on_delete = function(evt) {
+					$.NODEHUB.prompt('Are you sure that you want to delete this server?', 'Delete server', 'warning', 
+						function() {
+							$.post('/api/server-delete', { 'd_id': $(evt.target).attr('rel') }, function(data) {
+								if(data['code'] === 200) {
+									$.NODEHUB.alert('Server deleted', 'Success', 'success');
+									refresh();
+								} else {
+									$.NODEHUB.alert(data['message'], 'Error', 'error');
+								}
+							});
+						}, 
+						function() {}
+					);
+				};
+
+				refresh();
+			});
+		})(jQuery);

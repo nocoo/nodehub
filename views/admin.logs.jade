@@ -35,14 +35,14 @@ block append logic
 				var start_ids = [], last_id = undefined;
 				var request = function(is_pre) {
 					$.post('/api/log-list', { 'last_id': last_id }, function(data) {
-						if(data.extra['docs'].length === 0) {
+						if(data.extra.length === 0) {
 							$.NODEHUB.alert('No more logs.', 'Error', 'warning');
 							return;
 						}
 
 						var html = [], i, record;
-						for(i = 0; i < data.extra['docs'].length; ++i) {
-							record = data.extra['docs'][i];
+						for(i = 0; i < data.extra.length; ++i) {
+							record = data.extra[i];
 
 							html.push('<tr>');
 							//html.push('<td>' + record['_id'] + '</td>');
@@ -53,8 +53,8 @@ block append logic
 						}
 
 						if(!is_pre) {
-							if(data.extra['docs'][0]) {
-								start_ids.push({ 'start': data.extra['docs'][0]['_id'], 'end': record['_id'] });
+							if(data.extra[0]) {
+								start_ids.push({ 'start': data.extra[0]['_id'], 'end': record['_id'] });
 							} else {
 
 							}

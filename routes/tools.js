@@ -7,12 +7,10 @@
 
 var mongodb = require('mongodb');
 
-exports.BASE_URL = '/tm';
+exports.VERSION = '0.1.0';
+exports.PORT = 17755;
 exports.SESSION_MAX_AGE = 600000;
 exports.PER_PAGE_COUNT = 20;
-
-exports.MONGODB_SERVER = new mongodb.Server('localhost', 27017, { 'auto_reconnect': true, 'poolSize': 20 });
-exports.DB = new mongodb.Db('nodehub', exports.MONGODB_SERVER);
 
 // GUID.
 exports.guid = function(type) {
@@ -23,6 +21,17 @@ exports.guid = function(type) {
 	} else {
 		return (S4()+S4());
 	}
+};
+
+exports.dbopen = function(callback) {
+	var db = new mongodb.Db('nodehub', new mongodb.Server('localhost', 27017, { 'auto_reconnect': true, 'poolSize': 20 }));
+	db.open(function(error, db) {
+		if(error) {
+			return callback(error);
+		}
+
+		return callback(undefined, db);
+	});
 };
 
 // TimeStamp.
@@ -72,7 +81,7 @@ exports.log = function(message, extra) {
 	console.log(result.join(''));
 
 	// Add to database.
-	exports.DB.open(function(error, db) {
+	exports.dbopen(function(error, db) {
 		if(!error) {
 			db.collection('logs', function(error, collection) {
 				var doc = {
