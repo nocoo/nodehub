@@ -19,9 +19,6 @@ app.configure(function(){
 	app.set('port', tools.PORT);
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'jade');
-
-	//app.use(express.favicon());
-	//app.use(express.logger('dev'));
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(app.router);
@@ -47,12 +44,14 @@ app.get('/admin/logs/:token', routes.admin.logs);
 
 /* APIs */
 app.get('/api/version', routes.api.version);
+app.post('/api/version', routes.api.version);
 app.post('/api/login', routes.api.login);
 app.post('/api/log-list', routes.api.log_list);
 app.post('/api/server-add', routes.api.server_add);
 app.post('/api/server-list', routes.api.server_list);
 app.post('/api/server-delete', routes.api.server_delete);
 app.post('/api/server-update', routes.api.server_update);
+app.post('/api/server-test', routes.api.server_test);
 
 http.createServer(app).listen(app.get('port'), function(){
 	tools.log("NodeHub server listening on port " + app.get('port'));

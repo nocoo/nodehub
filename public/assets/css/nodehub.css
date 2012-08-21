@@ -69,6 +69,16 @@ a:hover { color: #FF9933; }
 .p-admin-services #table_services thead th:nth-child(5) { width: 40px; }
 .p-admin-services #table_services thead th:nth-child(6) { width: 80px; }
 
+.p-admin-servers h1 a { position: relative; float: right; margin-left: 10px; }
+.p-admin-servers #table_servers thead th:nth-child(1) { width: 55px; }
+.p-admin-servers #table_servers thead th:nth-child(4) { width: 40px; text-align: right; }
+.p-admin-servers #table_servers thead th:nth-child(5) { width: 50px; text-align: right; }
+.p-admin-servers #table_servers thead th:nth-child(6) { width: 90px; }
+.p-admin-servers #table_servers tbody td:nth-child(1) { }
+.p-admin-servers #table_servers tbody td:nth-child(4) { text-align: right; }
+.p-admin-servers #table_servers tbody td:nth-child(5) { text-align: right; }
+.p-admin-servers #table_servers tbody td:nth-child(6) { }
+
 /* Override BootStrap */
 .btn, .alert, .table-bordered, .pagination li:first-child a, .pagination li:last-child a,
 textarea, input[type="text"], input[type="password"], input[type="datetime"], 
@@ -103,4 +113,4 @@ input[type="tel"], input[type="color"], .uneditable-input,
 	background-color: #FF9933 \9;
 }
 
-span.label { font-family: Consolas, Menlo, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', monospace, serif; padding: 5px 5px 4px 5px; }
+span.label { font-family: Consolas, Menlo, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', monospace, serif; padding: 5px 5px 4px 5px; font-weight: normal; font-size: 1.1em; }

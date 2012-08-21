@@ -5,19 +5,19 @@ block admin-left
 		include admin.sidemenu.jade
 
 block admin-right
-	div.b-right-content.p-admin-services
+	div.b-right-content.p-admin-servers
 		h1 Servers
 			a.btn.btn-primary#a_new(href='#/admin/services/add/#{admin.token}') New Server
 			a.btn.btn#a_test_all(href='#') Test All
 
-		table.table.table-bordered#table_services
+		table.table.table-bordered#table_servers
 			thead
 				tr
 					th Label
 					th Name
 					th Address
 					th Port
-					th Status
+					th Reply in
 					th Version
 					th Operation
 			tbody
@@ -137,7 +137,7 @@ block append logic
 							if(data['code'] !== 200) {
 								$.NODEHUB.alert(data['message'], 'Server Error', 'error');
 							} else {
-								if(!data['extra'] || !data['extra'].length) return;
+								if(!data['extra']) return;
 
 								servers = data['extra'];
 								var html = [], record;
@@ -145,7 +145,7 @@ block append logic
 									record = data['extra'][i];
 
 									html.push('<tr id="row_' + record['_id'] + '">');
-									html.push('<td><span class="label label-info">' + record['label'] + '</span></td>');
+									html.push('<td><span class="label">' + record['label'] + '</span></td>');
 									html.push('<td>' + record['name'] + '</td>');
 									html.push('<td>' + record['address'] + '</td>');
 									html.push('<td>' + record['port'] + '</td>');
@@ -159,26 +159,64 @@ block append logic
 									html.push('</tr>');
 								}
 
-								$('#table_services tbody').html(html.join(''));
+								$('#table_servers tbody').html(html.join(''));
 
 								// Events.
 								$('.a-edit').off('click');
 								$('.a-edit').on('click', on_edit);
 								$('.a-delete').off('click');
 								$('.a-delete').on('click', on_delete);
+								$('.a-test').off('click');
+								$('.a-test').on('click', on_test);
+
+								test_all();
 							}
 						}
 					);
 				};
 
-				var test_server = function() {
-
-				};
-
 				var test_all = function() {
-					if(!servers) return;
-
+					if(servers) {
+						for(var i = 0; i < servers.length; ++i) {
+							test_server(servers[i]['_id']);
+						}
+					}
 				};
+
+				var test_server = function(id) {
+					$.post('/api/server-test', { 'd_id': id }, function(data) {
+						console.log(data);
+						if(data['code'] === 200) {
+							var html = [ '<span class="label label-' ];
+
+							if(data.extra.latency < 1000) {
+								html.push('success');
+							} else if(data.extra.latency < 5000) {
+								html.push('warning');
+							} else {
+								html.push('important');
+							}
+
+							html.push('">' + data.extra.latency + 'ms</span>');
+
+							$('#row_' + id + ' td:nth-child(5)').html(html.join(''));
+
+							if(data.extra.response && data.extra.response['name'] === 'NodeHub Service') {
+								$('#row_' + id + ' td:nth-child(6)').text('NodeHub ' + data.extra.response['version']);
+							} else {
+								$('#row_' + id + ' td:nth-child(6)').text('Unknown');
+							}
+						} else if(data['code'] === 504) {
+							$('#row_' + id + ' td:nth-child(5)').html('<span class="label label-important">Timeout</span>');
+							$('#row_' + id + ' td:nth-child(6)').text('Unknown');
+						} else {
+							$('#row_' + id + ' td:nth-child(5)').html('<span class="label label-important">Error</span>');
+							$('#row_' + id + ' td:nth-child(6)').text('Unknown');
+						}
+					});
+				};
+
+				var on_test = function(evt) { test_server($(evt.target).attr('rel')); };
 
 				var on_delete = function(evt) {
 					$.NODEHUB.prompt('Are you sure that you want to delete this server?', 'Delete server', 'error', 

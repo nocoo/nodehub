@@ -6,6 +6,7 @@
 */
 
 var tools   = require('./tools'),
+	http    = require('http'),
 	mongodb = require('mongodb');
 
 /* == Public Area == */
@@ -212,7 +213,149 @@ exports.api.server_update = function(req, res) {
 	});
 };
 
+var server_request = function(options, callback, is_json) {
+	var result = {
+		'latency': undefined,
+		'status': 0,
+		'headers': {},
+		'response': '',
+		'error': undefined
+	};
+
+	var start = (new Date()).getTime();
+	switch(options['method']) {
+		case 'GET': {
+			var request = http.get(options, function(response) {
+				result['status'] = response.statusCode;
+				result['headers'] = response.headers;
+
+				response.on('data', function (chunk) {
+					result['latency'] = (new Date()).getTime() - start;
+
+					if(is_json) {
+						try {
+							result['response'] = JSON.parse(chunk);
+						} catch(e) {}
+					} else {
+						result['response'] = chunk;
+					}
+					
+					callback(200, result);
+				});
+			}).on("error", function(error) {
+				callback(200, 'Error');
+			});
+
+			break;
+		}
+		case 'POST': {
+			var timer;
+
+			var request = http.request(options, function(response) {
+				var data = '';
+
+				result['status'] = response.statusCode;
+				result['headers'] = response.headers;
+
+				response.setEncoding('utf8');
+				response.on('data', function (chunk) {
+					data += chunk;
+				});
+
+				response.on('end', function() {
+					result['latency'] = (new Date()).getTime() - start;
+
+					clearTimeout(timer);
+
+					if(is_json) {
+						try {
+							result['response'] = JSON.parse(data);
+						} catch(e) {}
+					} else {
+						result['response'] = data;
+					}
+					
+					callback(200, result);
+				});
+			});
+
+			request.on("error", function(error) {
+				result['latency'] = (new Date()).getTime() - start;
+				if(result['latency'] >= tools.TIMEOUT && error['code'] === 'ECONNRESET') {
+					result['error'] = 'Gateway Timeout.';
+					return callback(504, result);
+				} else {
+					result['error'] = 'General HTTP Error';
+					return callback(500, result);
+				}
+			});
+
+			request.end();
+
+			timer = setTimeout(function() {
+				request.abort();
+				delete timer;
+			}, tools.TIMEOUT);
+
+			break;
+		}
+		default: {
+			callback(501, 'Not Implemented');
+			break;
+		}
+	}
+};
+
+// API: Test a server
+exports.api.server_test = function(req, res) {
+	if(!tools.check(req)) return res.json(tools.json_result(401));
+
+	var data = { '_id': req.body['d_id'] };
+
+	entity_get('server', data['_id'], function(code, server) {
+		if(code === 200) {
+			tools.log('[API] server_test', server);
+			var options = { host: server['address'], port: server['port'], path: '/api/version', method: 'POST' };
+			
+			server_request(options, function(code, back) {
+				res.json(tools.json_result(code, undefined, back));
+			}, true);
+		} else {
+			res.json(tools.json_result(code, undefined, 'error'));
+		}
+	});
+};
+
 // Entity operations.
+var entity_get = function(name, id, callback) {
+	if(!name || !id) {
+		return callback(400, 'Bad Request');
+	}
+
+	tools.dbopen(function(error, db) {
+		if(error) {
+			return callback(506, error);
+		}
+
+		db.collection(name + 's', function(error, collection) {
+			if(error) {
+				return callback(506, error);
+			}
+
+			var ObjectID = mongodb.ObjectID;
+
+			collection.findOne({ '_id': new ObjectID(id) }, function(error, entity) {
+				db.close();
+				if(error) {
+					return callback(506, error);
+				}
+
+				return callback(200, entity);
+			});
+		});
+	});
+};
+
 var entity_add = function(name, entity, callback) {
 	if(!name || !entity) {
 		return callback(400, 'Bad Request');

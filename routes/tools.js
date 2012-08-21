@@ -11,6 +11,7 @@ exports.VERSION = '0.1.0';
 exports.PORT = 17755;
 exports.SESSION_MAX_AGE = 600000;
 exports.PER_PAGE_COUNT = 20;
+exports.TIMEOUT = 5000;
 
 // GUID.
 exports.guid = function(type) {
@@ -141,6 +142,14 @@ exports.json_result = function(code, message, extra) {
 
 			case 500: {
 				result.message = 'Internal Server Error.';
+				break;
+			}
+			case 501: {
+				result.message = 'Not Implemented.';
+				break;
+			}
+			case 504: {
+				result.message = 'Gateway Timeout.';
 				break;
 			}
 			case 506: {
