@@ -315,7 +315,7 @@ exports.api.server_test = function(req, res) {
 	entity_get('server', data['_id'], function(code, server) {
 		if(code === 200) {
 			tools.log('[API] server_test', server);
-			var options = { host: server['address'], port: server['port'], path: '/api/version', method: 'POST' };
+			var options = { host: server['address'], port: server['port'], path: '/api/version?' + (new Date()).getTime(), method: 'POST' };
 			
 			server_request(options, function(code, back) {
 				res.json(tools.json_result(code, undefined, back));

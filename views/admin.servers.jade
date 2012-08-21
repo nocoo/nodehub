@@ -202,9 +202,9 @@ block append logic
 							$('#row_' + id + ' td:nth-child(5)').html(html.join(''));
 
 							if(data.extra.response && data.extra.response['name'] === 'NodeHub Service') {
-								$('#row_' + id + ' td:nth-child(6)').text('NodeHub ' + data.extra.response['version']);
+								$('#row_' + id + ' td:nth-child(6)').text('NodeHub/' + data.extra.response['version']);
 							} else {
-								$('#row_' + id + ' td:nth-child(6)').text('Unknown');
+								$('#row_' + id + ' td:nth-child(6)').text(data.extra.headers['server'] || 'Unknown');
 							}
 						} else if(data['code'] === 504) {
 							$('#row_' + id + ' td:nth-child(5)').html('<span class="label label-important">Timeout</span>');
