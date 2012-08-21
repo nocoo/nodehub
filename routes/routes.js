@@ -193,13 +193,33 @@ exports.api.server_delete = function(req, res) {
 	});
 };
 
+// API: Edit server
+exports.api.server_update = function(req, res) {
+	if(!tools.check(req)) return res.json(tools.json_result(401));
+
+	var data = { 
+		'_id': req.body['d_id'],
+		'name': req.body['d_name'],
+		'address': req.body['d_address'],
+		'port': req.body['d_port']
+	};
+
+	tools.log('[API] server_update', data);
+
+	entity_update('server', data, function(code, result) {
+		if(code !== 200) { tools.log('API Error', result); }
+		res.json(tools.json_result(code, undefined, result));
+	});
+};
+
+// Entity operations.
 var entity_add = function(name, entity, callback) {
 	if(!name || !entity) {
 		return callback(400, 'Bad Request');
 	}
 
-	entity['time'] = (new Date()).getTime();
-	entity['time_string'] = tools.timestamp();
+	entity['create_at_timestamp'] = (new Date()).getTime();
+	entity['create_at'] = tools.timestamp();
 	tools.dbopen(function(error, db) {
 		if(error) {
 			return callback(506, error);
@@ -289,6 +309,45 @@ var entity_delete = function(name, entity, callback) {
 
 				tools.log('Entity "' + name + '" removed, affected: ', result);
 				return callback(200, result);
+			});
+		});
+	});
+};
+
+var entity_update = function(name, entity, callback) {
+	if(!name || !entity) {
+		return callback(400, 'Bad Request');
+	}
+
+	tools.dbopen(function(error, db) {
+		if(error) {
+			return callback(506, error);
+		}
+
+		db.collection(name + 's', function(error, collection) {
+			if(error) {
+				return callback(506, error);
+			}
+
+			var ObjectID = mongodb.ObjectID, id = entity['_id'];
+
+			delete entity['id'];
+			var todo = [];
+			for(var property in entity) if(!entity[property]) todo.push(property);
+			for(var i = 0; i < todo.length; ++i) delete entity[todo[i]];
+
+			entity['update_at_timestamp'] = (new Date()).getTime();
+			entity['update_at'] = tools.timestamp();
+			delete entity['_id'];
+
+			collection.update({ '_id': new ObjectID(id) }, { $set: entity }, { safe: true }, function(error, affected) {
+				db.close();
+				if(error) {
+					return callback(506, error);
+				}
+
+				tools.log('Entity "' + name + '" updated, affected: ' + affected);
+				return callback(200, entity);
 			});
 		});
 	});

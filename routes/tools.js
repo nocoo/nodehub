@@ -158,3 +158,5 @@ exports.json_result = function(code, message, extra) {
 
 	return result;
 };
+
+// Tester.

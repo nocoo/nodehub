@@ -52,7 +52,7 @@ app.post('/api/log-list', routes.api.log_list);
 app.post('/api/server-add', routes.api.server_add);
 app.post('/api/server-list', routes.api.server_list);
 app.post('/api/server-delete', routes.api.server_delete);
-app.post('/api/server-edit', routes.api.server_delete);
+app.post('/api/server-update', routes.api.server_update);
 
 http.createServer(app).listen(app.get('port'), function(){
 	tools.log("NodeHub server listening on port " + app.get('port'));

@@ -44,7 +44,7 @@ block mask-window
 							input.span1#input_port(type='text', value='17755')
 							p.help-inline Port of NodeHub app.
 		div.actions
-			a.btn.btn-info#a_window_add(href='#') Add
+			a.btn.btn-primary#a_window_add(href='#') Add
 			a.btn#a_window_cancel(href='#') Canel
 			div.clear
 
@@ -52,10 +52,16 @@ block append logic
 	script
 		;(function($) {
 			$(document).ready(function() {
+				var servers, mode = 'add', editing;
+
 				$('.b-sidemenu li.item-servers').addClass('active');
 				$.NODEHUB.window(400, 220);
 
 				$('#a_new').on('click', function() {
+					mode = 'add';
+					$('#form_new_server legend').text('Add New Hub Server');
+					$('#a_window_add').text('Add');
+
 					$.NODEHUB.window_show();
 					$('#form_new_server').get(0).reset();
 					return false;
@@ -66,29 +72,62 @@ block append logic
 				});
 
 				$('#a_window_add').on('click', function() {
-					$.post(
-						'/api/server-add',
-						{
-							'd_name': $('#input_name').attr('value') || 'N/A',
-							'd_address': $('#input_address').attr('value') || 'N/A',
-							'd_port': $('#input_port').attr('value') || '17755'
-						},
-						function(data) {
-							$.NODEHUB.window_hide();
-							refresh();
+					if(mode === 'add') {
+						$.post(
+							'/api/server-add',
+							{
+								'd_name': $('#input_name').attr('value') || 'N/A',
+								'd_address': $('#input_address').attr('value') || 'N/A',
+								'd_port': $('#input_port').attr('value') || '17755'
+							},
+							function(data) {
+								$.NODEHUB.window_hide();
+								refresh();
 
-							if(data['code'] === 200) {
-								$.NODEHUB.alert('Server added', 'Success', 'success');
-							} else {
-								$.NODEHUB.alert(data['message'], 'Error', 'error');
+								if(data['code'] === 200) {
+									$.NODEHUB.alert('Server added', 'Success', 'success');
+								} else {
+									$.NODEHUB.alert(data['message'], 'Error', 'error');
+								}
 							}
-						}
-					);
+						);
+					} else if(mode === 'edit') {
+						$.NODEHUB.window_hide();
+
+						$.NODEHUB.prompt('Are you sure that you want to edit this server?', 'Edit server', 'warning', 
+							function() {
+								if(!editing) return;
+
+								editing['name'] = $('#input_name').attr('value');
+								editing['address'] = $('#input_address').attr('value');
+								editing['port'] = $('#input_port').attr('value');
+
+								$.post('/api/server-update', 
+									{ 
+										'd_id': editing['_id'],
+										'd_name': editing['name'],
+										'd_address': editing['address'],
+										'd_port': editing['port']
+									}, 
+									function(data) {
+										if(data['code'] === 200) {
+											$.NODEHUB.alert('Server edited', 'Success', 'success');
+											refresh();
+										} else {
+											$.NODEHUB.alert(data['message'], 'Error', 'error');
+										}
+
+										refresh();
+									}
+								);
+							}, 
+							function() { delete editing; }
+						);
+					}
 				});
 
 				$('#a_test_all').on('click', function() { test_all(); });
 
-				var servers;
 				var refresh = function() {
 					// Get server list.
 					$.post('/api/server-list', {  },
@@ -113,7 +152,9 @@ block append logic
 
 									html.push('<td>Testing</td>');
 									html.push('<td>Testing</td>');
-									html.push('<td><a href="#" class="a-delete" rel="' + record['_id'] + '">Delete</a> | <a href="#" class="a-test" rel="' + record['_id'] + '">Test</a></td>');
+									html.push('<td><a href="#" class="a-edit" rel="r_' + i + '">Edit</a> | ');
+									html.push('<a href="#" class="a-delete" rel="' + record['_id'] + '">Delete</a> | ');
+									html.push('<a href="#" class="a-test" rel="' + record['_id'] + '">Test</a></td>');
 
 									html.push('</tr>');
 								}
@@ -121,6 +162,8 @@ block append logic
 								$('#table_services tbody').html(html.join(''));
 
 								// Events.
+								$('.a-edit').off('click');
+								$('.a-edit').on('click', on_edit);
 								$('.a-delete').off('click');
 								$('.a-delete').on('click', on_delete);
 							}
@@ -138,7 +181,7 @@ block append logic
 				};
 
 				var on_delete = function(evt) {
-					$.NODEHUB.prompt('Are you sure that you want to delete this server?', 'Delete server', 'warning', 
+					$.NODEHUB.prompt('Are you sure that you want to delete this server?', 'Delete server', 'error', 
 						function() {
 							$.post('/api/server-delete', { 'd_id': $(evt.target).attr('rel') }, function(data) {
 								if(data['code'] === 200) {
@@ -151,6 +194,28 @@ block append logic
 						}, 
 						function() {}
 					);
+				};
+
+				var on_edit = function(evt) {
+					mode = 'edit';
+					$('#form_new_server legend').text('Edit Hub Server');
+					$('#a_window_add').text('Edit');
+
+					if(servers) {
+						var server = servers[$(evt.target).attr('rel').replace('r_', '')];
+
+						$('#input_name').attr('value', server['name']);
+						$('#input_address').attr('value', server['address']);
+						$('#input_port').attr('value', server['port']);
+
+						$.NODEHUB.window_show();
+
+						editing = server;
+					} else {
+						delete editing;
+					}
+					
+					return false;
 				};
 
 				refresh();
