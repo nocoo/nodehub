@@ -21,7 +21,7 @@
 			};
 
 			$.NODEHUB.mongodb_objectid_add = function(objectid, offset) {
-				return objectid.substr(0, 14) + (parseInt(objectid.substr(14), 16) + offset).toString(16);
+				return objectid.substr(0, 12) + (parseInt(objectid.substr(12), 16) + offset).toString(16);
 			};
 
 			$.NODEHUB.prompt = function(message, title, level, on_confrim, on_cancel) {
@@ -122,6 +122,15 @@
 				$('.b-window').on('click', function(evt) {
 					evt.preventDefault();
 					evt.stopPropagation();
+				});
+
+				$(document).off('keyup');
+				$(document).on('keyup', function(evt) {
+					if(lock) return;
+
+					if($('.b-mask').css('display') === 'block' && evt.keyCode === 27) {
+						$.NODEHUB.window_hide();
+					}
 				});
 			};
 

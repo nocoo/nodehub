@@ -213,6 +213,48 @@ exports.api.server_update = function(req, res) {
 	});
 };
 
+// API: Test a server
+exports.api.server_test = function(req, res) {
+	if(!tools.check(req)) return res.json(tools.json_result(401));
+
+	var data = { '_id': req.body['d_id'] };
+
+	entity_get('server', data['_id'], function(code, server) {
+		if(code === 200) {
+			tools.log('[API] server_test', server);
+			var options = { 
+				host: server['address'], 
+				port: server['port'], 
+				path: '/api/version?' + (new Date()).getTime(), 
+				method: 'GET',
+				label: server['label']
+			};
+			
+			server_request(options, function(code, back) {
+				res.json(tools.json_result(code, undefined, back));
+			}, true);
+		} else {
+			res.json(tools.json_result(code, undefined, 'error'));
+		}
+	});
+};
+
+// Log a server request result.
+var server_request_log = function(options, result, callback) {
+	var log = result;
+	
+	log['host'] = options['host'];
+	log['port'] = options['port'];
+	log['path'] = options['path'];
+	log['method'] = options['method'];
+	log['label'] = options['label'];
+
+	entity_add('server_log', log, function(code, result) {
+		callback(code, result);
+	});
+};
+
+// Make a server request.
 var server_request = function(options, callback, is_json) {
 	var result = {
 		'latency': undefined,
@@ -222,14 +264,15 @@ var server_request = function(options, callback, is_json) {
 		'error': undefined
 	};
 
-	var start = (new Date()).getTime();
+	var start = (new Date()).getTime(), data = '';
 	switch(options['method']) {
 		case 'GET': {
+			data = '';
 			var request = http.get(options, function(response) {
 				result['status'] = response.statusCode;
 				result['headers'] = response.headers;
 
-				response.on('data', function (chunk) {
+				response.on('end', function () {
 					result['latency'] = (new Date()).getTime() - start;
 
 					if(is_json) {
@@ -240,10 +283,22 @@ var server_request = function(options, callback, is_json) {
 						result['response'] = chunk;
 					}
 					
-					callback(200, result);
+					server_request_log(options, result, function() {
+						callback(200, result);
+					});
+				});
+
+				response.on('data', function (chunk) {
+					data += chunk;
 				});
 			}).on("error", function(error) {
-				callback(200, 'Error');
+				request.abort();
+				result['latency'] = (new Date()).getTime() - start;
+				result['error'] = error;
+				
+				server_request_log(options, result, function() {
+					callback(500, result);
+				});
 			});
 
 			break;
@@ -251,9 +306,8 @@ var server_request = function(options, callback, is_json) {
 		case 'POST': {
 			var timer;
 
+			data = '';
 			var request = http.request(options, function(response) {
-				var data = '';
-
 				result['status'] = response.statusCode;
 				result['headers'] = response.headers;
 
@@ -306,27 +360,7 @@ var server_request = function(options, callback, is_json) {
 	}
 };
 
-// API: Test a server
-exports.api.server_test = function(req, res) {
-	if(!tools.check(req)) return res.json(tools.json_result(401));
-
-	var data = { '_id': req.body['d_id'] };
-
-	entity_get('server', data['_id'], function(code, server) {
-		if(code === 200) {
-			tools.log('[API] server_test', server);
-			var options = { host: server['address'], port: server['port'], path: '/api/version?' + (new Date()).getTime(), method: 'POST' };
-			
-			server_request(options, function(code, back) {
-				res.json(tools.json_result(code, undefined, back));
-			}, true);
-		} else {
-			res.json(tools.json_result(code, undefined, 'error'));
-		}
-	});
-};
-
-// Entity operations.
+// Entity operations, Get an entity.
 var entity_get = function(name, id, callback) {
 	if(!name || !id) {
 		return callback(400, 'Bad Request');
@@ -356,6 +390,7 @@ var entity_get = function(name, id, callback) {
 	});
 };
 
+// Entity operations, Add an entity.
 var entity_add = function(name, entity, callback) {
 	if(!name || !entity) {
 		return callback(400, 'Bad Request');
@@ -365,15 +400,17 @@ var entity_add = function(name, entity, callback) {
 	entity['create_at'] = tools.timestamp();
 	tools.dbopen(function(error, db) {
 		if(error) {
+			db.close();
 			return callback(506, error);
 		}
 
 		db.collection(name + 's', function(error, collection) {
 			if(error) {
+				db.close();
 				return callback(506, error);
 			}
 
-			collection.insert(entity, { safe: true }, function(error, result) {
+			collection.insert(entity, { safe: false }, function(error, result) {
 				db.close();
 
 				if(error) {
@@ -387,6 +424,7 @@ var entity_add = function(name, entity, callback) {
 	});
 };
 
+// Entity operations, List entities.
 var entity_list = function(name, last_id, callback) {
 	if(!name) {
 		return callback(400, 'Bad Request');
@@ -426,6 +464,7 @@ var entity_list = function(name, last_id, callback) {
 	});
 };
 
+// Entity operations, Delete an entity.
 var entity_delete = function(name, entity, callback) {
 	if(!name || !entity) {
 		return callback(400, 'Bad Request');
@@ -457,6 +496,7 @@ var entity_delete = function(name, entity, callback) {
 	});
 };
 
+// Entity operations, Update an entity.
 var entity_update = function(name, entity, callback) {
 	if(!name || !entity) {
 		return callback(400, 'Bad Request');

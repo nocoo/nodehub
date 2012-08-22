@@ -7,21 +7,72 @@ block admin-left
 block admin-right
 	div.b-right-content.p-admin-services
 		h1 Services
-			a.btn.btn-info#a_new(href='#/admin/services/add/#{admin.token}') New Service
-
-		table.table.table-bordered#table_services
-			thead
-				tr
-					//th #Log ID
-					th Time
-					th Message
-					th Extra
-			tbody
+		div#container
 
 block mask-window
 	div.p-admin-services-window
+		div.content
+			form.form-horizontal#form_new_service
+				fieldset
+					legend Add New Service
+					div.control-group
+						label.control-label Name
+						div.controls
+							input.span2#input_name(type='text')
+							p.help-inline
+					div.control-group
+						label.control-label Type
+						div.controls
+							select.span2
+								option(value='monitor', selected='selected') Monitor
+								option(value='control') Control
+							p.help-inline
+					div.control-group
+						label.control-label Protocol
+						div.controls
+							select.span2
+								option(value='http', selected='selected') HTTP
+							p.help-inline
+					div.control-group
+						label.control-label Method
+						div.controls
+							select.span2
+								option(value='GET', selected='selected') GET
+								option(value='POST') POST
+							p.help-inline
+					div.control-group
+						label.control-label Address
+						div.controls
+							input.span3#input_address(type='text')
+							p.help-inline Hostname or IP address.
+					
+					div.control-group
+						label.control-label TCP Port
+						div.controls
+							input.span1#input_port(type='text', value='80')
+							p.help-inline
+					div.control-group
+						label.control-label Path
+						div.controls
+							input.span4#input_address(type='text')
+							p.help-inline
+					div.control-group
+						label.control-label Secret Name
+						div.controls
+							input.span2#input_secret_name(type='text')
+							p.help-inline
+					div.control-group
+						label.control-label Secret Value
+						div.controls
+							input.span3#input_secret_value(type='text')
+							p.help-inline
+					div.control-group
+						label.control-label Description
+						div.controls
+							textarea.span5#textarea_description(row='3')
+							p.help-inline
 		div.actions
-			a.btn.btn-info#a_window_add(href='#') Add
+			a.btn.btn-primary#a_window_add(href='#') Add
 			a.btn#a_window_cancel(href='#') Canel
 			div.clear
 
@@ -29,16 +80,58 @@ block append logic
 	script
 		;(function($) {
 			$(document).ready(function() {
-				$('.b-sidemenu li.item-services').addClass('active');
-				$.NODEHUB.window(400, 300);
+				var servers;
 
-				$('#a_new').on('click', function() {
-					$.NODEHUB.window_show();
-					return false;
-				});
+				$('.b-sidemenu li.item-services').addClass('active');
+				$.NODEHUB.window(480, 560);
 
 				$('#a_window_cancel').on('click', function() {
 					$.NODEHUB.window_hide();
+					return false;
 				});
+
+				var refresh = function() {
+					// Get server list.
+					$.post('/api/server-list', {  },
+						function(data) {
+							//console.log(data);
+
+							if(data['code'] !== 200) {
+								$.NODEHUB.alert(data['message'], 'Server Error', 'error');
+							} else {
+								if(!data['extra']) return;
+
+								servers = data['extra'];
+								var html = [], record;
+								for(var i = 0; i < data['extra'].length; ++i) {
+									record = data['extra'][i];
+
+									html.push('<div class="server-block">');
+									html.push('<h2>' + record['name']);
+									
+									html.push('<div class="btn-group">');
+									html.push('<button class="btn btn-add-service" rel="' + record['_id'] + '"><i class="icon-plus"></i> Add Service</button>');
+									
+									html.push('<button class="btn btn-monitor" rel="' + record['_id'] + '"><i class="icon-search"></i> Monitor</button>');
+									html.push('</div></h2>');
+
+									html.push('</div>');
+
+								}
+
+								$('#container').html(html.join(''));
+
+								// Events.
+								$('.btn-add-service').off('click');
+								$('.btn-add-service').on('click', function(evt) {
+									$.NODEHUB.window_show();
+								});
+								
+							}
+						}
+					);
+				};
+
+				refresh();
 			});
 		})(jQuery);

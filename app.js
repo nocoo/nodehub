@@ -44,7 +44,6 @@ app.get('/admin/logs/:token', routes.admin.logs);
 
 /* APIs */
 app.get('/api/version', routes.api.version);
-app.post('/api/version', routes.api.version);
 app.post('/api/login', routes.api.login);
 app.post('/api/log-list', routes.api.log_list);
 app.post('/api/server-add', routes.api.server_add);

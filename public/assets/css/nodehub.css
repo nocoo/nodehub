@@ -59,21 +59,23 @@ a:hover { color: #FF9933; }
 .admin-content .b-sidemenu li.active a { background: #FF6600; }
 
 .admin-content h1 { font-size: 2em; color: #333; border-bottom: 1px solid #CCC; margin-bottom: 20px; }
+.admin-content h1 a { position: relative; float: right; margin-left: 10px; }
+.admin-content h2 { font-size: 1.6em; color: #555; }
+.admin-content h2 .btn-group { position: relative; float: right; margin-left: 10px; }
 .admin-content #table_logs thead tr th:nth-child(1) { width: 132px; }
 
 /* Pages */
 .p-admin-logs {  }
-.p-admin-services h1 a { position: relative; float: right; margin-left: 10px; }
-.p-admin-services #table_services thead th:nth-child(1) { width: 55px; }
-.p-admin-services #table_services thead th:nth-child(4) { width: 40px; }
-.p-admin-services #table_services thead th:nth-child(5) { width: 40px; }
-.p-admin-services #table_services thead th:nth-child(6) { width: 80px; }
 
-.p-admin-servers h1 a { position: relative; float: right; margin-left: 10px; }
+.p-admin-services .server-block { border-bottom: 1px solid #DEDEDE; padding-bottom: 10px; margin-bottom: 20px; }
+
 .p-admin-servers #table_servers thead th:nth-child(1) { width: 55px; }
 .p-admin-servers #table_servers thead th:nth-child(4) { width: 40px; text-align: right; }
 .p-admin-servers #table_servers thead th:nth-child(5) { width: 50px; text-align: right; }
 .p-admin-servers #table_servers thead th:nth-child(6) { width: 90px; }
+.p-admin-servers #table_servers thead th:nth-child(7) { width: 222px; }
+
+.p-admin-servers #table_servers tbody td { line-height: 30px; }
 .p-admin-servers #table_servers tbody td:nth-child(1) { }
 .p-admin-servers #table_servers tbody td:nth-child(4) { text-align: right; }
 .p-admin-servers #table_servers tbody td:nth-child(5) { text-align: right; }

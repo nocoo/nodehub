@@ -18,7 +18,7 @@ block admin-right
 					th Address
 					th Port
 					th Reply in
-					th Version
+					th Server
 					th Operation
 			tbody
 
@@ -36,7 +36,7 @@ block mask-window
 					div.control-group
 						label.control-label Address
 						div.controls
-							input.span2#input_address(type='text')
+							input.span3#input_address(type='text')
 							p.help-inline Hostname or IP address.
 					div.control-group
 						label.control-label TCP Port
@@ -55,7 +55,7 @@ block append logic
 				var servers, mode = 'add', editing;
 
 				$('.b-sidemenu li.item-servers').addClass('active');
-				$.NODEHUB.window(400, 220);
+				$.NODEHUB.window(470, 220);
 
 				$('#a_new').on('click', function() {
 					mode = 'add';
@@ -152,10 +152,13 @@ block append logic
 
 									html.push('<td>Testing</td>');
 									html.push('<td>Testing</td>');
-									html.push('<td><a href="#" class="a-edit" rel="r_' + i + '">Edit</a> | ');
-									html.push('<a href="#" class="a-delete" rel="' + record['_id'] + '">Delete</a> | ');
-									html.push('<a href="#" class="a-test" rel="' + record['_id'] + '">Test</a></td>');
 
+									html.push('<td class="btn-group">');
+									html.push('<a href="#" class="btn a-edit" rel="r_' + i + '"><i class="icon-pencil"></i> Edit</a>');
+									html.push('<a href="#" class="btn a-delete" rel="' + record['_id'] + '"><i class="icon-trash"></i> Delete</a>');
+									html.push('<a href="#" class="btn a-test" rel="' + record['_id'] + '"><i class="icon-refresh"></i> Retest</a>');
+									html.push('</td>');
+									
 									html.push('</tr>');
 								}
 
